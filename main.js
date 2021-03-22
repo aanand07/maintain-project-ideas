@@ -20,6 +20,7 @@ const toggleNav = () => {
   Array.from(document.getElementById('nav').children).forEach(el => {
     if (el.id === currentPage) el.classList.add('d-none')
     else el.classList.remove('d-none')
+    if(el.id === 'login' && sessionStorage.getItem('empId')) el.classList.add('d-none')
   })
 }
 toggleNav();
@@ -95,15 +96,31 @@ const addChallengeInStorage = () => {
   })
 }
 
+const handleLogin = () => {
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    sessionStorage.setItem('empId', document.getElementById('employeeId').value)
+    onNavClick('/add-challenge')
+  })
+}
+
+const checkLogin = (pathname) => {
+  if(pathname === '/add-challenge' && !sessionStorage.getItem('empId')){
+    onNavClick('/login');
+    alert('Please login to add a challenge');
+  }
+}
+
 const onNavClick = async (pathname) => {
   window.history.pushState({}, pathname, `${location.href.split('/').slice(0, -1).join('/')}${pathname}`);
   if (pageRefreshPath) {
     sessionStorage.removeItem('pathName');
     await main();
   }
+  checkLogin(pathname);
   rootDiv.innerHTML = routes[pathname];
   pathname === '/add-challenge' && addChallengeInStorage();
   pathname === '/home' && getAllChallenges();
+  pathname === '/login' && handleLogin();
   toggleNav();
 };
 
