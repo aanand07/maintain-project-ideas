@@ -12,16 +12,24 @@
 <body>
     <!-- <input type="text" placeholder="Enter your employee id"/>
     <a href="add-challenge.html">Login</a> -->
-    <ul class="navbar-list">
-        <li class="navbar-item">
+    <ul id="nav" class="navbar-list">
+      <li id="home" class="navbar-item">
+        <a href="#" onclick="onNavClick('/home'); return false;">Home</a>
+      </li>
+        <li id="addChallenge" class="navbar-item">
           <a href="#" onclick="onNavClick('/add-challenge'); return false;">Add Challenge</a>
         </li>
-        <li class="navbar-item">
+        <li id="login" class="navbar-item">
           <a href="#" onclick="onNavClick('/login'); return false;">Login</a>
         </li>
       </ul>
-      <div id="root"></div>
+      <div id="root">
+      <div id="allChallenges">
+
+      </div>
+    </div>
 </body>
 <script src="main.js"></script>
+<!-- <script src="add-challenge.js"></script> -->
 
 </html>

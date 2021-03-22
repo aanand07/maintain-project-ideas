@@ -1,15 +1,56 @@
 const rootDiv = document.getElementById('root');
+let login = '';
+let addChallenge = '';
+const pageRefreshPath = sessionStorage.getItem('pathName');
+let routes;
+let hackathons = JSON.parse(sessionStorage.getItem('hackathons')) || [];
 
-//Declare the variables for home, about & contact html pages
+const toggleNav = () => {
+  let currentPage;
+  switch (location.pathname) {
+    case '/add-challenge':
+      currentPage = 'addChallenge';
+      break;
+    case '/login':
+      currentPage = 'login';
+      break;
+    default:
+      currentPage = 'home'
+  }
+  Array.from(document.getElementById('nav').children).forEach(el => {
+    if (el.id === currentPage) el.classList.add('d-none')
+    else el.classList.remove('d-none')
+  })
+}
+toggleNav();
 
-// let login = '';
-// let addChallenge = '';
+const getAllChallenges = () => {
+  const container = document.getElementById('allChallenges');
+  const fragment = new DocumentFragment();
+  const table = document.createElement('table');
+  hackathons.forEach((el, index) => {
+    if (index === 0) {
+      const tr = document.createElement('tr');
+      for (let key in el) {
+        const td = document.createElement('th');
+        td.appendChild(document.createTextNode(key))
+        tr.appendChild(td);
+      }
+      table.appendChild(tr)
+    }
+    const tr = document.createElement('tr');
+    for (let key in el) {
+      const td = document.createElement('td');
+      td.appendChild(document.createTextNode(el[key]))
+      tr.appendChild(td);
+    }
+    table.appendChild(tr)
+  })
+  fragment.appendChild(table);
+  container.appendChild(fragment)
+}
 
-/**
- *
- * @param {String} page - Represents the page information that needs to be retrieved
- * @returns {String} resHtml - The Page's HTML is returned from the async invocation
- */
+hackathons.length > 0 && getAllChallenges();
 
 const loadPage = async (page) => {
   const response = await fetch(page);
@@ -20,73 +61,56 @@ const loadPage = async (page) => {
 /**
  * The Async function loads all HTML to the variables 'home', 'about' & 'contact'
  */
-// const loadAllPages = async () => {
-// //   home = await loadPage('home.html');
-//   login = await loadPage('login.html');
-//   addChallenge = await loadPage('add-challenge.html');
-// };
+const loadAllPages = async () => {
+  home = `<div id="allChallenges"></div>`;
+  login = await loadPage('login.html');
+  addChallenge = await loadPage('add-challenge.html');
+};
 
-const addChallenge = `
-<form>
-        <div class="form-group col-md-4">
-            <label for="title">Title</label>
-            <input type="text" id="title" class="form-control">
-            <!-- <div class="form-group"> -->
-            <label for="description">Description</label>
-            <input type="text" id="description" class="form-control">
-            <!-- </div> -->
-            <!-- <div class="select"> -->
-            <label for="tags">Tags</label>
-            <select id="tags" name="tags" class="form-control">
-                <option value="">Select a tag</option>
-                <option value="feature">Feature</option>
-                <option value="tech">Tech</option>
-            </select>
-            <!-- </div> -->
-            <button type="submit" class="btn btn-success">Submit</button>
-        </div>
-    </form>
-`
+const main = async () => {
+  await loadAllPages();
+  routes = {
+    '/home': home,
+    '/login': login,
+    '/add-challenge': addChallenge,
+  };
+};
 
-const login = `
-<input type="text" placeholder="Enter your employee id"/>
-`
+// Invoke the Main function
+!pageRefreshPath && main();
 
-const routes = {
-        '/add-challenge': addChallenge,
-        '/login': login,
-      };
+const loadScript = (pathname) => {
+  let script = document.createElement('script');
+  script.src = `${pathname.slice(1)}.js`;
+  document.getElementsByTagName('body')[0].appendChild(script);
+}
 
-// /**
-//  * The Main Function is an async function that first loads All Page HTML to the variables
-//  * Once the variables are loaded with the contents, then they are assigned to the 'routes' variable
-//  */
-// const main = async () => {
-//   await loadAllPages();
-//   rootDiv.innerHTML = home;
-//   routes = {
-//     '/add-challenge': addChallenge,
-//     '/login': login,
-//   };
-// };
+const addChallengeInStorage = () => {
+  document.getElementById('addChallengeBtn').addEventListener('click', () => {
+    const title = document.querySelector('#title').value;
+    const description = document.querySelector('#description').value;
+    const tags = document.querySelector('#tags').value;
+    hackathons.push({ title, description, tags })
+    sessionStorage.setItem('hackathons', JSON.stringify(hackathons))
+  })
+}
 
-// // Invoke the Main function
-// main();
-
-/**
- *
- * @param {String} pathname - Pass the 'pathname' passed from onClick function of the link (index.html)
- * The function is invoked when any link is clicked in the html.
- * The onClick event on the html invokes the onNavClick & passes the pathname as param
- */
-const onNavClick = (pathname) => {
-  window.history.pushState({}, pathname, `${location.href.split('/').slice(0,-1).join('/')}${pathname}`);
+const onNavClick = async (pathname) => {
+  window.history.pushState({}, pathname, `${location.href.split('/').slice(0, -1).join('/')}${pathname}`);
+  if (pageRefreshPath) {
+    sessionStorage.removeItem('pathName');
+    await main();
+  }
   rootDiv.innerHTML = routes[pathname];
+  pathname === '/add-challenge' && addChallengeInStorage();
+  pathname === '/home' && getAllChallenges();
+  toggleNav();
 };
 
-/**
- * The Function is invoked when the window.history's state changes
- */
-window.onpopstate = () => {
-  rootDiv.innerHTML = routes[window.location.pathname];
-};
+if (sessionStorage.getItem('pathName')) {
+  onNavClick(sessionStorage.getItem('pathName'))
+}
+
+window.addEventListener('popstate', () => {
+  rootDiv.innerHTML = routes[window.location.pathname] || '';
+})
