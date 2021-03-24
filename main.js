@@ -21,7 +21,7 @@
       default:
         currentPage = 'home'
     }
-    Array.from(document.getElementById('nav').children).forEach(el => {
+    document.getElementById('nav') && Array.from(document.getElementById('nav').children).forEach(el => {
       if (el.id === currentPage) el.classList.add('d-none')
       else el.classList.remove('d-none')
       if (el.id === 'login' && sessionStorage.getItem('empId')) el.classList.add('d-none')
@@ -79,7 +79,7 @@
   const getAllChallenges = (hacks) => {
     const container = document.getElementById('allChallenges');
     container.replaceChildren();
-    const fragment = new DocumentFragment();
+    const fragment = new DocumentFragment(); // used document fragment to prepare the whole table and then append it in dom.
     const table = document.createElement('table');
     let hackathons = hacks || getHackathons();
     table.classList.add('table');
@@ -123,15 +123,15 @@
       const description = document.querySelector('#description').value;
       const tags = document.querySelector('#tags').value;
       const hackathons = getHackathons();
-      hackathons.push({ No: hackathons.length + 1, Title: title, Description: description, Tags: tags, Time: new Date().toLocaleString(), Upvotes: 0 })
-      sessionStorage.setItem('hackathons', JSON.stringify(hackathons))
+      hackathons.push({ No: hackathons.length + 1, Title: title, Description: description, Tags: tags, Time: new Date().toLocaleString(), Upvotes: 0 });
+      sessionStorage.setItem('hackathons', JSON.stringify(hackathons));
     })
   }
 
   const handleLogin = () => {
     document.getElementById('loginBtn').addEventListener('click', () => {
-      sessionStorage.setItem('empId', document.getElementById('employeeId').value)
-      onNavClick('/add-challenge')
+      sessionStorage.setItem('empId', document.getElementById('employeeId').value);
+      onNavClick('/add-challenge');
     })
   }
 
