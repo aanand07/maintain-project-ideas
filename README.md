@@ -1,6 +1,7 @@
-# Hack Ideas
+# Maintain project ideas
 
-This application has been created in `vanilla javascript`, no external packages has been used, even SPA like routing has been handled in vanilla js.
+This is an application to maintain a list of project ideas.
+This has been created in `vanilla javascript`, no external packages has been used, even SPA like routing has been handled in vanilla js.
 `Session storage` has been used to persist the data on browser.
 This app has three routes, `home, login and add-challenge`. Home is the default route and has all the added challenges.
 To add challenge, user has to login first. Care has been taken to not let unauthenticated users add challenges.
